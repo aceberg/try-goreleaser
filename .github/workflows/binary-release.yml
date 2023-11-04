@@ -34,12 +34,12 @@ jobs:
           distribution: goreleaser
           version: latest
           args: release --clean
+          workdir: myfolder
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # - name: Upload the artifacts
-      #   uses: skx/github-action-publish-binaries@master
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     args: 'rediary-*'
+      - name: Upload assets
+        uses: actions/upload-artifact@v3
+        with:
+          name: rediary
+          path: myfolder/dist/*

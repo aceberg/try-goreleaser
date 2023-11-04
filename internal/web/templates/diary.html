@@ -1,0 +1,88 @@
+{{ define "diary"}}
+<body>
+    <div class="container mt-3">
+        <div class="row">
+            <!-- <div class="col"></div> -->
+            <div class="col">
+                <div class="row">
+                    <div class="col" style="max-width: 25%;">
+                        <a href="/diary?show=month"><button class="btn btn-outline-primary">Month</button></a>&nbsp;
+                        <a href="/diary?show=all"><button class="btn btn-outline-primary">All</button></a>&nbsp;
+                    </div>
+                    <div class="col" style="width: 100%;">
+                        <form action="/diary_show/" method="get" class="input-group">
+                            <span class="input-group-text">From</span>
+                            <input name="from" type="date" class="form-control">
+                            <span class="input-group-text">To</span>
+                            <input name="to" type="date" class="form-control">
+                            <button type="submit" class="btn btn-outline-primary">Show</button>
+                        </form>
+                    </div>
+                </div>
+                <table class="table table-striped">
+                <thead>
+                    <th style="width: 0%;"></th>
+                    <th>Date</th>
+                    <th>Tag</th>
+                    <th>Name</th>
+                    <th>Minus</th>
+                    <th>Plus</th>
+                    <th>Total</th>
+                    <th></th>
+                </thead>
+                {{ range .Records }}
+                    <tr title="{{ .Note }}">
+                        <td><i style="color: {{ .Color }};" class="bi bi-circle-fill"></i></td>
+                        <td>{{ .Date }}</td>
+                        <td><a href="/diary?tag={{ .Tag }}">{{ .Tag }}</a></td>
+                        <td>{{ .Name }}</td>
+                        <td>-{{ .Minus }}</td>
+                        <td>+{{ .Plus }}</td>
+                        <td>{{ .Total }}</td>
+                        <td>
+                            <a href="/del_record?id={{ .ID }}"><i class="bi bi-x-circle"></i></a>
+                        </td>
+                    </tr>
+                {{ end }}
+                <tr>
+                    <td></td>
+                    <td><b>Summary</b></td>
+                    <td></td>
+                    <td></td>
+                    <td><b class="my-minus">-{{ .OneRec.Minus }}</b></td>
+                    <td><b class="my-plus">+{{ .OneRec.Plus }}</b></td>
+                    <td>
+                        {{ if gt .OneRec.Total 0 }}
+                        <b class="my-plus">{{ .OneRec.Total }}</b>
+                        {{ else }}
+                        <b class="my-minus">{{ .OneRec.Total }}</b>
+                        {{ end }}
+                    </td>
+                    <td></td>
+                </tr>
+                </table>
+            </div>
+            <div class="col">
+                <canvas id="myChart" style="max-height: 400px;"></canvas>
+            </div>
+        </div>
+    </div>
+    <script>
+        var xValues = {{ .Chart.Tag }};
+        var yValues = {{ .Chart.Count }};
+        var barColors = {{ .Chart.Color }};
+        
+        new Chart("myChart", {
+            type: "bar",
+            data: {
+                labels: xValues,
+                datasets: [{
+                    label: 'Total by tag',
+                    backgroundColor: barColors,
+                    data: yValues
+                }]
+            }
+        });
+    </script>
+{{ template "footer" }}
+{{ end }}

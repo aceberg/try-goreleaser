@@ -1,0 +1,257 @@
+{{ define "index"}}
+<body>
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col">
+                <div class="chart-container">
+                    <canvas id="matrix-chart" style="max-width: 75%;">
+                </div>
+            </div>
+            <div class="col">
+                <table class="table">
+                <form action="/add_record/" method="post">
+                    <tr>
+                        <td>Date</td>
+                        <td><input name="date" type="date" class="form-control"></td>
+                    </tr>
+                    <tr>
+                        <td>Name</td>
+                        <td><select name="name" class="form-select">
+                            {{ range .Config.Actions }}
+                                <option value="{{ .Tag }}:{{ .Name }}">{{ .Tag }}: {{ .Name }}</option>
+                            {{ end }}
+                        </select></td>
+                    </tr>
+                    <tr>
+                        <td>Minus</td>
+                        <td><input name="minus" type="range" min="0" max="{{ .Config.MoodMax }}" step="1" class="range-minus"></td>
+                    </tr>
+                    <tr>
+                        <td>Plus</td>
+                        <td><input name="plus" type="range" min="0" max="{{ .Config.MoodMax }}" step="1" class="range-plus"></td>
+                    </tr>
+                </table>
+                <textarea name="note" class="form-control" placeholder="Note" rows="2" title="Hover mouse over existing records to see their notes"></textarea>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+                </form>
+            </div>
+            <div class="col">
+                <canvas id="word-cloud"></canvas>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col"></div>
+            <div class="col">
+                <br><br>
+                <b>Today - {{ .OneRec.Date }}</b>
+                <br>
+                <table class="table table-striped">
+                <thead>
+                    <th style="width: 0%;"></th>
+                    <th>Tag</th>
+                    <th>Name</th>
+                    <th>Minus</th>
+                    <th>Plus</th>
+                    <th>Total</th>
+                </thead>
+                {{ range .Records }}
+                    <tr title="{{ .Note }}">
+                        <td><i style="color: {{ .Color }};" class="bi bi-circle-fill"></i></td>
+                        <td><a href="/diary?tag={{ .Tag }}">{{ .Tag }}</a></td>
+                        <td>{{ .Name }}</td>
+                        <td>-{{ .Minus }}</td>
+                        <td>+{{ .Plus }}</td>
+                        <td>{{ .Total }}</td>
+                    </tr>
+                {{ end }}
+                    <tr>
+                        <td colspan="3"><b>Summary</b></td>
+                        <td><b class="my-minus">-{{ .OneRec.Minus }}</b></td>
+                        <td><b class="my-plus">+{{ .OneRec.Plus }}</b></td>
+                        <td>
+                            {{ if gt .OneRec.Total 0 }}
+                            <b class="my-plus">{{ .OneRec.Total }}</b>
+                            {{ else }}
+                            <b class="my-minus">{{ .OneRec.Total }}</b>
+                            {{ end }}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col"></div>
+        </div>
+    </div>
+    <script>
+        // Word-cloud
+        var xValues = {{ .Chart.Tag }};
+        var yValues = {{ .Chart.Count }};
+
+        new Chart("word-cloud", {
+            type: 'wordCloud',
+            data: {
+                labels: xValues,
+                datasets: [{
+                    label: 'Month top',
+                    data: yValues
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: false,
+                    tooltip: {
+                        callbacks: {
+                            title() {
+                                return '';
+                            },
+                            label(context) {
+                                return ['Top last month'];
+                            }
+                        }
+					}
+                }
+            }            
+        });
+
+        // HeatMap
+        var heat = {{ .Heat }};
+
+        const mapWeek = new Map();
+        mapWeek.set('Mo', 0);
+        mapWeek.set('Tu', 1);
+        mapWeek.set('We', 2);
+        mapWeek.set('Th', 3);
+        mapWeek.set('Fr', 4);
+        mapWeek.set('Sa', 5);
+        mapWeek.set('Su', 6);
+
+        function lowerData() {
+            var ldata = [];
+            let arrayLength = heat.length;
+            for (let i = 0 ; i < arrayLength; i++) {
+                let val = heat[i];
+                ldata.push({
+                    x: val.X,
+                    y: val.Y,
+                    d: val.D,
+                    v: val.V
+                });
+            }
+            return ldata;
+        }
+
+        function countColor(v) {
+            var r = document.querySelector(':root');
+            var rs = getComputedStyle(r);
+            var minus =  rs.getPropertyValue('--minis-color');
+            var plus =  rs.getPropertyValue('--plus-color');
+            if (v < 0) {
+                const alpha = v/-10;
+			    return Chart.helpers.color(minus).alpha(alpha).rgbString();
+            } else {
+                const alpha = v/10;
+			    return Chart.helpers.color(plus).alpha(alpha).rgbString();
+            }
+        };
+        col = countColor(1);
+        // console.log('COL =', col);
+
+        var ctx = document.getElementById("matrix-chart").getContext("2d");
+		window.myMatrix = new Chart(ctx, {
+			type: 'matrix',
+			data: {
+				datasets: [{
+					label: 'Heatmap',
+					data: lowerData(),
+					backgroundColor(context) {
+						const value = context.dataset.data[context.dataIndex].v;
+                        return countColor(value);
+					},
+                    borderColor(context) {
+						const value = context.dataset.data[context.dataIndex].v;
+						const alpha = 0.5;
+						return Chart.helpers.color('grey').alpha(alpha).rgbString();
+					},
+                    borderWidth: 1,
+                    hoverBackgroundColor: 'lightgrey',
+                    hoverBorderColor: 'grey',
+					width(context) {
+						const a = context.chart.chartArea;
+						if (!a) {
+							return 0;
+						}
+						return (a.right - a.left) / 7;
+					},
+					height(context) {
+						const a = context.chart.chartArea;
+						if (!a) {
+							return 0;
+						}
+						return (a.bottom - a.top) / 5;
+					}
+				}]
+			},
+			options: {
+                onClick: (e) => {
+                    const canvasPosition = Chart.helpers.getRelativePosition(e, window.myMatrix);
+
+                    // Substitute the appropriate scale IDs
+                    const dataX = window.myMatrix.scales.x.getValueForPixel(canvasPosition.x);
+                    const dataY = window.myMatrix.scales.y.getValueForPixel(canvasPosition.y);
+
+                    let arrayLength = heat.length;
+                    for (let i = 0 ; i < arrayLength; i++) {
+                        let val = heat[i];
+                        if (val.Y == dataY && mapWeek.get(val.X) == dataX) {
+                            var dayD = val.D;
+                            // console.log('dayD =', dayD);
+                        }
+                    }
+
+                    window.location.href = "/diary_show?from="+dayD+"&to="+dayD+"";
+                },
+                plugins: {
+                    legend: false,
+                    tooltip: {
+                        callbacks: {
+                            title() {
+                                return '';
+                            },
+                            label(context) {
+                                const v = context.dataset.data[context.dataIndex];
+                                return [v.v, v.d];
+                            }
+                        }
+					}
+                },
+				scales: {
+					x: {
+						type: 'category',
+						labels: ['Mo', 'Tu', 'We','Th','Fr','Sa','Su'],
+						ticks: {
+                            stepSize: 1,
+							display: true
+						},
+						grid: {
+							display: false
+						}
+					},
+					y: {
+						type: 'category',
+						labels: ['0','1', '2', '3', '4'],
+						offset: true,
+                        reverse: false,
+						ticks: {
+							display: false
+						},
+						grid: {
+					    	display: false
+						}
+					}
+				}
+			}
+		});    
+    </script>
+{{ template "footer" }}
+{{ end }}

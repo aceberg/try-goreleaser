@@ -1,0 +1,75 @@
+{{ define "header"}}
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="{{ .Config.BgColor }}">
+<head>
+    <title>Resource Diary</title>
+    <meta charset="utf-8">
+    <!--Favicon-->
+    <link href="data:image/x-icon;base64,{{ .Config.Icon }}" rel="icon" type="image/x-icon" />
+    <!-- Bootstrap and theme -->
+    <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/{{ .Config.Theme }}/bootstrap.min.css" rel="stylesheet">
+    <!-- Font for icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@2.0.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-wordcloud@4.2.0/build/index.umd.min.js"></script>
+    <style>
+      :root {
+        --minis-color:{{ .Config.ColorMinus }};
+        --plus-color:{{ .Config.ColorPlus }};
+      }
+      .my-minus {
+        color:var(--minis-color)
+      }
+      .my-plus {
+        color:var(--plus-color)
+      }
+      .range-minus {
+        accent-color:var(--minis-color);
+        width: 100%;
+      }
+      .range-plus {
+        accent-color:var(--plus-color);
+        width: 100%;
+      }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-sm navbar-dark bg-primary">
+        <div class="container">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                  <a class="nav-link active" href="/">
+                    <img src="data:image/png;base64, {{ .Config.Icon }}" width="40"/>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link active" href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link active" href="/diary">Diary</a>
+                </li>
+                <!-- <li class="nav-item">
+                  <a class="nav-link active" href="/stat/">Stat</a>
+                </li> -->
+                <li class="nav-item">
+                  <a class="nav-link active" href="/config/">Config</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link active" href="/auth_conf/">Auth</a>
+                </li>
+                {{ if .Config.Auth }}
+                <li class="nav-item">
+                  <a class="nav-link active" href="/login/?logout=yes">Log Out</a>
+                </li>
+                {{ end }}
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+              <li class="nav-item"><a class="nav-link active" target="_blank" href="https://github.com/aceberg/rediary">
+                <h3><i class="bi bi-github"></i></h3>
+              </a></li>
+            </ul>
+        </div>
+    </nav>
+{{ end }}

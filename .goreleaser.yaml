@@ -1,5 +1,6 @@
 project_name: rediary
 builds:
+  - main: ./cmd/rediary/
   - env: [CGO_ENABLED=0]
     goos:
       - linux

@@ -44,7 +44,7 @@ nfpms:
     contents:
     - src: ./configs/rediary@.service
       dst: /lib/systemd/system/rediary@.service
-      src: ./configs/rediary.service
+    - src: ./configs/rediary.service
       dst: /lib/systemd/system/rediary.service
     scripts:
       postinstall: |

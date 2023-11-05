@@ -56,8 +56,8 @@ archives:
     - ./configs/rediary@.service
     - ./configs/rediary.service
     - ./configs/install.sh
+    - strip_parent: true
     wrap_in_directory: true
-    strip_parent: true
     format_overrides:
     - goos: windows
       format: zip

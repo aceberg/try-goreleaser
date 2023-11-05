@@ -53,10 +53,12 @@ archives:
     - LICENSE
     - README.md
     - CHANGELOG.md
-    - ./configs/rediary@.service
-    - ./configs/rediary.service
-    - ./configs/install.sh
-    - strip_parent: true
+    - src: ./configs/rediary@.service
+      dst: rediary@.service
+    - src: ./configs/rediary.service
+      dst: rediary.service
+    - src: ./configs/install.sh
+      dst: install.sh
     wrap_in_directory: true
     format_overrides:
     - goos: windows

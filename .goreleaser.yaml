@@ -37,9 +37,8 @@ nfpms:
     - deb
     - rpm
     - apk
-    - archlinux
     - termux.deb
-    dependencies:
+    dependencies: # Don't forget to edit!
     - arp-scan
     contents:
     - src: ./configs/rediary@.service
@@ -57,6 +56,11 @@ archives:
     - ./configs/rediary@.service
     - ./configs/rediary.service
     - ./configs/install.sh
+    wrap_in_directory: true
+    strip_parent: true
+    format_overrides:
+    - goos: windows
+      format: zip
 
 checksum:
   name_template: "checksums.txt"

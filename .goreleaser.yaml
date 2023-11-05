@@ -47,8 +47,7 @@ nfpms:
     - src: ./configs/rediary.service
       dst: /lib/systemd/system/rediary.service
     scripts:
-      postinstall: |
-        systemctl daemon-reload
+      postinstall: ./configs/postinstall.sh
 
 archives:
   - files:

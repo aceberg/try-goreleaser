@@ -32,6 +32,7 @@ nfpms:
     description: Emotional resource diary 
     homepage: https://github.com/aceberg/rediary
     license: MIT
+    section: utils
     formats:
     - deb
     - rpm
@@ -40,12 +41,23 @@ nfpms:
     - termux.deb
     dependencies:
     - arp-scan
+    contents:
+    - src: ./configs/rediary@.service
+      dst: /lib/systemd/system/rediary@.service
+      src: ./configs/rediary.service
+      dst: /lib/systemd/system/rediary.service
+    scripts:
+      postinstall: |
+        systemctl daemon-reload
 
 archives:
   - files:
     - LICENSE
     - README.md
     - CHANGELOG.md
+    - ./configs/rediary@.service
+    - ./configs/rediary.service
+    - ./configs/install.sh
 
 checksum:
   name_template: "checksums.txt"

@@ -13,21 +13,10 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@master
 
-      # - name: Get version tag from env file
-      #   uses: c-py/action-dotenv-to-setenv@v2
+      # - uses: actions/setup-go@v4
       #   with:
-      #     env-file: .version
-
-      - uses: actions/setup-go@v4
-        with:
-          go-version: 'stable'
-      - run: go version
-
-      # - name: Build and archive
-      #   run: build/ci/build.sh ${{ env.VERSION }}
-
-      # - name: Build .deb package
-      #   run: build/ci/build-deb.sh ${{ env.VERSION }}
+      #     go-version: 'stable'
+      # - run: go version
 
       - uses: goreleaser/goreleaser-action@v5
         with:

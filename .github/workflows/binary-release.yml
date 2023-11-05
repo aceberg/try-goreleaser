@@ -13,10 +13,10 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@master
 
-      # - uses: actions/setup-go@v4
-      #   with:
-      #     go-version: 'stable'
-      # - run: go version
+      - uses: actions/setup-go@v4
+        with:
+          go-version: 'stable'
+      - run: go version
 
       - uses: goreleaser/goreleaser-action@v5
         with:
